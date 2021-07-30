@@ -13,7 +13,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Saloon extends StatefulWidget {
-  var cat; 
+  var cat;
   Saloon(this.cat);
 
   @override
@@ -521,7 +521,7 @@ class _SaloonProState extends State<SaloonPro> {
 
                                   if (saloonId == snapSendedFor) {
                                     return Card(
-                                      color: Colors.blue,
+                                      color: Colors.indigo[300],
                                       child: Container(
                                         height: 150,
                                         child: Column(
@@ -534,41 +534,43 @@ class _SaloonProState extends State<SaloonPro> {
                                                   children: [
                                                     Flexible(
                                                       child: Text(
-                                                          '${snapshot.data.docs[index]['userReview']}'),
+                                                          '${snapshot.data.docs[index]['userReview']}', style: TextStyle(color: Colors.white, fontSize: 16),),
                                                     ),
                                                   ],
                                                 ),
-                                               
                                                 Container(
-                                                  margin: EdgeInsets.only(top: 10.0),
-                                                  child: Row(                                                    
+                                                  margin: EdgeInsets.only(
+                                                      top: 10.0),
+                                                  child: Row(
                                                     children: [
-                                                      Text('by : '),
-                                                      SizedBox(
-                                                        width: 100.0,
-                                                        child: Text(
-                                                          '${userdatareq['userName']}',
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
+                                                      // SizedBox(
+                                                      //   width: 100.0,
+                                                      //   child: userdatareq[
+                                                      //               'userName'] !=
+                                                      //           null
+                                                      //       ? Text(
+                                                      //           'by : ${userdatareq['userName']}', style: TextStyle(color: Colors.white, fontSize: 16),
+                                                      //           overflow:
+                                                      //               TextOverflow
+                                                      //                   .ellipsis,
+                                                      //         )
+                                                      //       : Text(''),
+                                                      // ),
                                                       Spacer(),
-                                                      Text('rating : '),
+                                                      
                                                       Icon(
                                                         Icons.star,
                                                         size: 15.0,
                                                         color: Colors.yellow,
                                                       ),
                                                       Text(
-                                                        '${snapshot.data.docs[index]['userRating']}',
+                                                        '${snapshot.data.docs[index]['userRating']}',style: TextStyle(color: Colors.white, fontSize: 16)
                                                       ),
                                                     ],
                                                   ),
-                                                ),
+                                                )
                                               ]),
                                             ),
-
-                                            
                                           ],
                                         ),
                                       ),
@@ -578,10 +580,7 @@ class _SaloonProState extends State<SaloonPro> {
                                   return Container();
                                 },
                               );
-
-                              
                             }),
-                        
                       ],
                     ),
                   ),
@@ -594,7 +593,6 @@ class _SaloonProState extends State<SaloonPro> {
     );
   }
 }
-
 
 class ImageCard extends StatelessWidget {
   ImageCard({this.imageData});
