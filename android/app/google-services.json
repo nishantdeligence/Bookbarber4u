@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "281100029604",
+    "project_id": "book-7db12",
+    "storage_bucket": "book-7db12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:281100029604:android:d24796fb8bf6ba950be031",
+        "android_client_info": {
+          "package_name": "com.deligence.barberbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "281100029604-5sk1mep6qme29em1ose31qk9dcakkhet.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.deligence.barberbook",
+            "certificate_hash": "9ad39f4095fa8c5d69314be894cdafb6eaa3f0fd"
+          }
+        },
+        {
+          "client_id": "281100029604-86o2dhk4mlnhelrv8oiq5b46enbo80oa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGQbzHIukFszgJKnYckXatasNzE1mO4gs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "281100029604-86o2dhk4mlnhelrv8oiq5b46enbo80oa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
