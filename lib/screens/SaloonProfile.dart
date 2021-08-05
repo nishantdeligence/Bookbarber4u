@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 
 import 'package:barber/models/image_darta.dart';
@@ -74,11 +76,11 @@ class _SaloonState extends State<Saloon> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(7.0),
                             image: DecorationImage(
-                              image: snapshot.data.docs[index]
-                                          ['saloonPictures'] !=
+                              image: snapshot.data.docs[index]['saloonPictures']
+                                          [0] !=
                                       "null"
                                   ? NetworkImage(snapshot.data.docs[index]
-                                      ['saloonPictures'])
+                                      ['saloonPictures'][0])
                                   : AssetImage(
                                       "assets/images/barber-shop-_151212203429-563.jpg"),
                               fit: BoxFit.cover,
@@ -141,8 +143,8 @@ class _SaloonProState extends State<SaloonPro> {
   File _image;
   String url;
 
-  Future getImage(context) async {
-    final image = await ImagePicker().getImage(source: ImageSource.gallery);
+  Future getImage2(context) async {
+    final image = await ImagePicker().getImage(source: ImageSource.camera);
 
     setState(() {
       _image = File(image.path);
@@ -151,24 +153,31 @@ class _SaloonProState extends State<SaloonPro> {
 
     String fileName = basename(_image.path);
 
-    // Reference firebaseStorageRef = FirebaseStorage.instance
-    //     .ref()
-    //     .child('user_Images')
-    //     .child(FirebaseAuth.instance.currentUser.uid + '_' + fileName);
+    Reference firebaseStorageRef = FirebaseStorage.instance
+        .ref()
+        .child('saloon_Images')
+        .child(FirebaseAuth.instance.currentUser.uid)
+        .child(FirebaseAuth.instance.currentUser.uid + '_' + fileName);
 
-    //UploadTask up = firebaseStorageRef.putFile(_image);
+    UploadTask up = firebaseStorageRef.putFile(_image);
 
-    // await up.whenComplete(() {
-    //   print('DONE_____');
-    //   firebaseStorageRef.getDownloadURL().then((value) {
-    //     url = value;
-    //     //print('test--------$value');
-    //     FirebaseFirestore.instance
-    //         .collection('Users')
-    //         .doc(FirebaseAuth.instance.currentUser.uid)
-    //         .update({'profile': url});
-    //   });
-    // });
+    await up.whenComplete(() {
+      print('DONE_____');
+      firebaseStorageRef.getDownloadURL().then((value) {
+        setState(() {
+          url = value;
+        });
+        Map<String, dynamic> updateobject = {
+          'saloonPictures': FieldValue.arrayUnion([url])
+        };
+        url = value;
+        //print('test--------$value');
+        FirebaseFirestore.instance
+            .collection('Ownership')
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .set(updateobject, SetOptions(merge: true));
+      });
+    });
   }
 
   @override
@@ -266,53 +275,110 @@ class _SaloonProState extends State<SaloonPro> {
                             child: Column(
                               children: [
                                 //IconButton(icon: Icon(Icons.ac_unit), onPressed: () {  },color: Colors.amber,),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SingleImageUpload()));
-                                    //getImage(context);
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (_) => AlertDialog(
-                                    //     title: Text('Add Pictures For saloon'),
-                                    //     content: Container(),
-                                    //     actions: [
-                                    //       Row(
-                                    //           mainAxisAlignment:
-                                    //               MainAxisAlignment.center,
-                                    //           children: [
-                                    //             TextButton(
-                                    //                 onPressed: () {},
-                                    //                 child: Text('ADD'))
-                                    //           ]),
-                                    //       TextButton(
-                                    //           onPressed: () =>
-                                    //               Navigator.of(context).pop(),
-                                    //           child: Text('Back')),
-                                    //     ],
-                                    //   ),
-                                    // );
-                                  },
-                                  child: Text('Add Media'),
-                                ),
-                                Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.6,
-                                  child: StaggeredGridView.countBuilder(
-                                    crossAxisCount: 3,
-                                    itemCount: imageList.length,
-                                    itemBuilder: (context, index) =>
-                                        ImageCard(imageData: imageList[index]),
-                                    staggeredTileBuilder: (index) =>
-                                        StaggeredTile.count(
-                                            (index % 7 == 0) ? 2 : 1,
-                                            (index % 7 == 0) ? 2 : 1),
-                                    mainAxisSpacing: 8.0,
-                                    crossAxisSpacing: 8.0,
-                                  ),
-                                ),
+                                FirebaseAuth.instance.currentUser.uid ==
+                                        widget.snap['saloonId']
+                                    ? ElevatedButton(
+                                        onPressed: () {
+                                          getImage2(context);
+                                        },
+                                        child: Text('Add Media'),
+                                      )
+                                    : Text(''),
+
+                                StreamBuilder<DocumentSnapshot>(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('Ownership')
+                                        .doc("${widget.snap['saloonId']}")
+                                        .snapshots(),
+                                    builder: (context,
+                                        AsyncSnapshot<DocumentSnapshot>
+                                            snapshot) {
+                                      if (!snapshot.hasData) {
+                                        return Text('no data');
+                                      }
+                                      if (snapshot.hasData) {
+                                        print(snapshot.data.data());
+                                      }
+                                      //  print(snapshot.data['saloonPictures'].length);
+                                      //  print(snapshot.data['saloonPictures'][0]);
+                                      //  print(snapshot.data['saloonPictures'][1]);
+                                      if(snapshot.data['saloonPictures'][0] != ''){
+
+                                      
+                                      return Container(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.6,
+                                        child: GridView.count(
+                                          crossAxisCount: 2,
+                                          shrinkWrap: true,
+                                          mainAxisSpacing: 10,
+                                          crossAxisSpacing: 10,
+                                          childAspectRatio: 1,
+                                          children: List.generate(
+                                            snapshot.data['saloonPictures']
+                                                    .length ??
+                                                0,
+                                            (index) => Stack(
+                                              children: [
+                                                Card(
+                                                  margin: EdgeInsets.all(10),
+                                                  child: Container(
+                                                   
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.rectangle,
+                                                        
+                                                    image: DecorationImage(                                                      
+                                                      image: NetworkImage(snapshot
+                                                                      .data[
+                                                                  'saloonPictures']
+                                                              [index].toString()) ,
+                                                            //  ??   Container(child: Text('No image found')),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  )),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ); }
+                                      return Container(child: Text('No Image Found'),);
+                                    }),
+
+                                // Container(
+                                //     width: double.infinity,
+                                //     height: 100.0,
+                                //     decoration: BoxDecoration(
+                                //       borderRadius: BorderRadius.circular(7.0),
+                                //       image: DecorationImage(
+                                //         image: snapshot.data.docs[index]['saloonPictures']
+                                //                     [0] !=
+                                //                 "null"
+                                //             ? NetworkImage(snapshot.data.docs[index]
+                                //                 ['saloonPictures'][0])
+                                //             : AssetImage(
+                                //                 "assets/images/barber-shop-_151212203429-563.jpg"),
+                                //         fit: BoxFit.cover,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // Container(
+                                //   height:
+                                //       MediaQuery.of(context).size.height * 0.6,
+                                //   child: StaggeredGridView.countBuilder(
+                                //     crossAxisCount: 3,
+                                //     itemCount: imageList.length,
+                                //     itemBuilder: (context, index) =>
+                                //         ImageCard(imageData: imageList[index]),
+                                //     staggeredTileBuilder: (index) =>
+                                //         StaggeredTile.count(
+                                //             (index % 7 == 0) ? 2 : 1,
+                                //             (index % 7 == 0) ? 2 : 1),
+                                //     mainAxisSpacing: 8.0,
+                                //     crossAxisSpacing: 8.0,
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),
@@ -438,7 +504,6 @@ class _SaloonProState extends State<SaloonPro> {
                                   Wrap(
                                     children: [
                                       Text('Saloon Opening Days :  '),
-
                                       Row(
                                         children: widget.snap["saloonDays"]
                                             .map<Widget>(
@@ -534,7 +599,11 @@ class _SaloonProState extends State<SaloonPro> {
                                                   children: [
                                                     Flexible(
                                                       child: Text(
-                                                          '${snapshot.data.docs[index]['userReview']}', style: TextStyle(color: Colors.white, fontSize: 16),),
+                                                        '${snapshot.data.docs[index]['userReview']}',
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 16),
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -557,15 +626,18 @@ class _SaloonProState extends State<SaloonPro> {
                                                       //       : Text(''),
                                                       // ),
                                                       Spacer(),
-                                                      
+
                                                       Icon(
                                                         Icons.star,
                                                         size: 15.0,
                                                         color: Colors.yellow,
                                                       ),
                                                       Text(
-                                                        '${snapshot.data.docs[index]['userRating']}',style: TextStyle(color: Colors.white, fontSize: 16)
-                                                      ),
+                                                          '${snapshot.data.docs[index]['userRating']}',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 16)),
                                                     ],
                                                   ),
                                                 )
@@ -603,7 +675,7 @@ class ImageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16.0),
-      child: Image.asset(imageData.imageasset, fit: BoxFit.cover),
+      //child: Container(decoration: BoxDecoration(image: DecorationImage(image: NetworkImage()))),
     );
   }
 }
@@ -622,122 +694,122 @@ class ImageUploadModel {
   });
 }
 
-class SingleImageUpload extends StatefulWidget {
-  @override
-  _SingleImageUploadState createState() {
-    return _SingleImageUploadState();
-  }
-}
+// class SingleImageUpload extends StatefulWidget {
+//   @override
+//   _SingleImageUploadState createState() {
+//     return _SingleImageUploadState();
+//   }
+// }
 
-class _SingleImageUploadState extends State<SingleImageUpload> {
-  List<Object> images = [];
-  Future<File> _imageFile;
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-      images.add("Add Image");
-    });
-  }
+// class _SingleImageUploadState extends State<SingleImageUpload> {
+//   List<Object> images = [];
+//   Future<File> _imageFile;
+//   @override
+//   void initState() {
+//     super.initState();
+//     setState(() {
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//       images.add("Add Image");
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      home: new Scaffold(
-        appBar: new AppBar(
-          centerTitle: true,
-          title: const Text('Add media'),
-        ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: buildGridView(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return new MaterialApp(
+//       home: new Scaffold(
+//         appBar: new AppBar(
+//           centerTitle: true,
+//           title: const Text('Add media'),
+//         ),
+//         body: Column(
+//           children: <Widget>[
+//             Expanded(
+//               child: buildGridView(),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 
-  Widget buildGridView() {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      childAspectRatio: 1,
-      children: List.generate(images.length, (index) {
-        if (images[index] is ImageUploadModel) {
-          ImageUploadModel uploadModel = images[index];
-          return Card(
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: <Widget>[
-                Image.file(
-                  uploadModel.imageFile,
-                  width: 300,
-                  height: 300,
-                ),
-                Positioned(
-                  right: 5,
-                  top: 5,
-                  child: InkWell(
-                    child: Icon(
-                      Icons.remove_circle,
-                      size: 20,
-                      color: Colors.red,
-                    ),
-                    onTap: () {
-                      setState(() {
-                        images.replaceRange(index, index + 1, ['Add Image']);
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        } else {
-          return Card(
-            child: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                _onAddImageClick(index);
-              },
-            ),
-          );
-        }
-      }),
-    );
-  }
+//   Widget buildGridView() {
+//     return GridView.count(
+//       shrinkWrap: true,
+//       crossAxisCount: 3,
+//       childAspectRatio: 1,
+//       children: List.generate(images.length, (index) {
+//         if (images[index] is ImageUploadModel) {
+//           ImageUploadModel uploadModel = images[index];
+//           return Card(
+//             clipBehavior: Clip.antiAlias,
+//             child: Stack(
+//               children: <Widget>[
+//                 Image.file(
+//                   uploadModel.imageFile,
+//                   width: 300,
+//                   height: 300,
+//                 ),
+//                 Positioned(
+//                   right: 5,
+//                   top: 5,
+//                   child: InkWell(
+//                     child: Icon(
+//                       Icons.remove_circle,
+//                       size: 20,
+//                       color: Colors.red,
+//                     ),
+//                     onTap: () {
+//                       setState(() {
+//                         images.replaceRange(index, index + 1, ['Add Image']);
+//                       });
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         } else {
+//           return Card(
+//             child: IconButton(
+//               icon: Icon(Icons.add),
+//               onPressed: () {
+//                 _onAddImageClick(index);
+//               },
+//             ),
+//           );
+//         }
+//       }),
+//     );
+//   }
 
-  File imageF;
-  Future _onAddImageClick(int index) async {
-    var imageF = await ImagePicker().getImage(source: ImageSource.gallery);
+//   File imageF;
+//   Future _onAddImageClick(int index) async {
+//     var imageF = await ImagePicker().getImage(source: ImageSource.gallery);
 
-    setState(() {
-      _imageFile = File(imageF.path) as Future<File>;
-      print('test--------$_imageFile');
-      getFileImage(index);
-    });
-  }
+//     setState(() {
+//       _imageFile = File(imageF.path) as Future<File>;
+//       print('test--------$_imageFile');
+//       getFileImage(index);
+//     });
+//   }
 
-  void getFileImage(int index) async {
-    _imageFile.then((file) async {
-      setState(() {
-        ImageUploadModel imageUpload = new ImageUploadModel();
-        imageUpload.isUploaded = false;
-        imageUpload.uploading = false;
-        imageUpload.imageFile = file;
-        imageUpload.imageUrl = '';
-        images.replaceRange(index, index + 1, [imageUpload]);
-      });
-    });
-  }
-}
+//   void getFileImage(int index) async {
+//     _imageFile.then((file) async {
+//       setState(() {
+//         ImageUploadModel imageUpload = new ImageUploadModel();
+//         imageUpload.isUploaded = false;
+//         imageUpload.uploading = false;
+//         imageUpload.imageFile = file;
+//         imageUpload.imageUrl = '';
+//         images.replaceRange(index, index + 1, [imageUpload]);
+//       });
+//     });
+//   }
+// }

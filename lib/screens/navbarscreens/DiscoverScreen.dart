@@ -252,10 +252,9 @@ class _DiscoverState extends State<Discover> {
                                     borderRadius: BorderRadius.circular(7.0),
                                     image: DecorationImage(
                                       image: snapshot.data.docs[index]
-                                                  ['saloonPictures'] !=
-                                              "null"
-                                          ? NetworkImage(snapshot.data
-                                              .docs[index]['saloonPictures'])
+                                                  ['saloonPictures'][0] !=
+                                              ""                                           ? NetworkImage(snapshot.data
+                                              .docs[index]['saloonPictures'][0])
                                           : AssetImage(
                                               "assets/images/barber-shop-_151212203429-563.jpg"),
                                       fit: BoxFit.cover,
@@ -349,11 +348,11 @@ class _DiscoverState extends State<Discover> {
                                               BorderRadius.circular(7.0),
                                           image: DecorationImage(
                                             image: snapshot.data.docs[index]
-                                                        ['saloonPictures'] !=
-                                                    "null"
+                                                        ['saloonPictures'][0] !=
+                                                    ""
                                                 ? NetworkImage(
                                                     snapshot.data.docs[index]
-                                                        ['saloonPictures'])
+                                                        ['saloonPictures'][0])
                                                 : AssetImage(
                                                     "assets/images/barber-shop-_151212203429-563.jpg"),
                                             fit: BoxFit.cover,
@@ -452,11 +451,11 @@ class _DiscoverState extends State<Discover> {
                                               BorderRadius.circular(7.0),
                                           image: DecorationImage(
                                             image: snapshot.data.docs[index]
-                                                        ['saloonPictures'] !=
-                                                    "null"
+                                                        ['saloonPictures'][0] !=
+                                                    ""
                                                 ? NetworkImage(
                                                     snapshot.data.docs[index]
-                                                        ['saloonPictures'])
+                                                        ['saloonPictures'][0])
                                                 : AssetImage(
                                                     "assets/images/barber-shop-_151212203429-563.jpg"),
                                             fit: BoxFit.cover,

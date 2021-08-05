@@ -53,7 +53,7 @@ class _DetailOwnerPageState extends State<DetailOwnerPage> {
         'saloonId': FirebaseAuth.instance.currentUser.uid,
         'saloonOther': _saloonOther.trim(),
         'saloonServices': _saloonServices,
-        'saloonPictures': 'null',
+        'saloonPictures': [],
         'saloonRating': '0',
         'timestamp': DateTime.now(),
       });
