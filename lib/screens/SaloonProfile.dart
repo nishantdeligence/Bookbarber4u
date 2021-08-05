@@ -76,9 +76,9 @@ class _SaloonState extends State<Saloon> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(7.0),
                             image: DecorationImage(
-                              image: snapshot.data.docs[index]['saloonPictures']
-                                          [0] !=
-                                      "null"
+                              image: snapshot.data.docs[index]['saloonPictures'].length
+                                           !=
+                                      0
                                   ? NetworkImage(snapshot.data.docs[index]
                                       ['saloonPictures'][0])
                                   : AssetImage(
@@ -302,7 +302,7 @@ class _SaloonProState extends State<SaloonPro> {
                                       //  print(snapshot.data['saloonPictures'].length);
                                       //  print(snapshot.data['saloonPictures'][0]);
                                       //  print(snapshot.data['saloonPictures'][1]);
-                                      if(snapshot.data['saloonPictures'][0] != ''){
+                                      if(snapshot.data['saloonPictures'].length != 0){
 
                                       
                                       return Container(

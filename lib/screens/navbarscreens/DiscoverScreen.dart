@@ -252,8 +252,8 @@ class _DiscoverState extends State<Discover> {
                                     borderRadius: BorderRadius.circular(7.0),
                                     image: DecorationImage(
                                       image: snapshot.data.docs[index]
-                                                  ['saloonPictures'][0] !=
-                                              ""                                           ? NetworkImage(snapshot.data
+                                                  ['saloonPictures'].length !=
+                                              0                                           ? NetworkImage(snapshot.data
                                               .docs[index]['saloonPictures'][0])
                                           : AssetImage(
                                               "assets/images/barber-shop-_151212203429-563.jpg"),
@@ -348,8 +348,8 @@ class _DiscoverState extends State<Discover> {
                                               BorderRadius.circular(7.0),
                                           image: DecorationImage(
                                             image: snapshot.data.docs[index]
-                                                        ['saloonPictures'][0] !=
-                                                    ""
+                                                        ['saloonPictures'].length !=
+                                                    0
                                                 ? NetworkImage(
                                                     snapshot.data.docs[index]
                                                         ['saloonPictures'][0])
@@ -451,8 +451,8 @@ class _DiscoverState extends State<Discover> {
                                               BorderRadius.circular(7.0),
                                           image: DecorationImage(
                                             image: snapshot.data.docs[index]
-                                                        ['saloonPictures'][0] !=
-                                                    ""
+                                                        ['saloonPictures'].length !=
+                                                    0
                                                 ? NetworkImage(
                                                     snapshot.data.docs[index]
                                                         ['saloonPictures'][0])
